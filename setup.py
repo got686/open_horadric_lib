@@ -1,9 +1,15 @@
 from setuptools import setup, find_namespace_packages
 
+
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
+
 setup(
     name='open_horadric_lib',
-    version='0.0.1',
+    version='0.0.2dev',
     packages=find_namespace_packages(),
+    install_requires=requirements,
     url='https://github.com/got686/open_horadric_lib',
     license='MIT',
     author='got686',
