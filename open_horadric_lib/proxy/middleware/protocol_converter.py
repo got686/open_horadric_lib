@@ -42,7 +42,7 @@ JSON_ACCEPT_TYPES = {
 class ProtocolConverterMiddleware(BaseProxyMiddleware):
     def process_request(self, request):
         if not flask_request.data:
-            return {}
+            return ProxyContext().request_message_type()
 
         protocol = self.get_input_protocol_type()
         if protocol == ProtocolType.MSGPACK:
