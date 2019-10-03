@@ -4,6 +4,7 @@ import logging
 from typing import List
 
 import flask
+
 from open_horadric_lib.client.client import BaseClient
 from open_horadric_lib.proxy.middleware.base import BaseProxyMiddleware
 

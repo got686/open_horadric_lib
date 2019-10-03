@@ -3,15 +3,14 @@ from __future__ import annotations
 import json
 from enum import IntEnum
 
-from google.protobuf.json_format import MessageToDict
-from google.protobuf.json_format import ParseDict
-from google.protobuf.message import Message
-
 import msgpack
 from flask import request as flask_request
 from flask.wrappers import Response
 from werkzeug.http import parse_accept_header
 
+from google.protobuf.json_format import MessageToDict
+from google.protobuf.json_format import ParseDict
+from google.protobuf.message import Message
 from open_horadric_lib.context.proxy import ProxyContext
 from open_horadric_lib.proxy.middleware.base import BaseProxyMiddleware
 
@@ -32,11 +31,7 @@ class ProtocolType(IntEnum):
     PROTOBUF = 2
 
 
-JSON_ACCEPT_TYPES = {
-    ContentTypeString.JSON,
-    ContentTypeString.DEFAULT,
-    ContentTypeString.DEFAULT_APPLICATION,
-}
+JSON_ACCEPT_TYPES = {ContentTypeString.JSON, ContentTypeString.DEFAULT, ContentTypeString.DEFAULT_APPLICATION}
 
 
 class ProtocolConverterMiddleware(BaseProxyMiddleware):

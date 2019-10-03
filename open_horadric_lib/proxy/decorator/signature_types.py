@@ -4,7 +4,6 @@ from functools import wraps
 from typing import Type
 
 from google.protobuf.message import Message
-
 from open_horadric_lib.context.proxy import ProxyContext
 from open_horadric_lib.proxy.decorator.base import convenient_decorator
 

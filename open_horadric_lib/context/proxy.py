@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Type
 
 from google.protobuf.message import Message
-
 from open_horadric_lib.context.base import BaseContext
 
 

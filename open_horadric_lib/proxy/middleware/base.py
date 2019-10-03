@@ -7,10 +7,10 @@ from typing import Optional
 from typing import Tuple
 from typing import TypeVar
 
-from google.protobuf.message import Message
-
 from flask.wrappers import Request as FlaskRequest
 from flask.wrappers import Response
+
+from google.protobuf.message import Message
 
 Request = TypeVar("Request", FlaskRequest, Message)
 

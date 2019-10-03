@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import logging
 from functools import wraps
-from typing import Optional, Callable, Tuple
+from typing import Callable
+from typing import Tuple
+
+from grpc.framework.interfaces.face.face import RpcContext
 
 from google.protobuf.message import Message
-from grpc.framework.interfaces.face.face import RpcContext
 
 
 class BaseServerMiddleware:
@@ -77,10 +79,10 @@ class BaseServerMiddleware:
         pass
 
     def __str__(self):
-        return '<{}>'.format(self.__class__.__name__)
+        return "<{}>".format(self.__class__.__name__)
 
     def __repr__(self):
-        return '{}()'.format(self.__class__.__name__)
+        return "{}()".format(self.__class__.__name__)
 
 
 def apply_middlewares(method: callable, *middlewares: Tuple[BaseServerMiddleware]) -> callable:
