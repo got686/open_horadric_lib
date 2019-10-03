@@ -20,8 +20,7 @@ class BaseProxyMiddleware(object):
 
     def apply(self, method):
         @wraps(method)
-        def _wrapped(request, *args, **kwargs):
-            # type: (Request, tuple, dict) -> Callable[[Request, tuple, dict], Response]
+        def _wrapped(request: Request, *args, **kwargs) -> Callable[[Request, tuple, dict], Response]:
             try:
                 request = self._process_request(request)
                 response = method(request=request, *args, **kwargs)
@@ -36,8 +35,7 @@ class BaseProxyMiddleware(object):
 
         return _wrapped
 
-    def _process_request(self, request):
-        # type: (Request) -> Request
+    def _process_request(self, request: Request) -> Request:
         self.logger.debug("%s.process_request", repr(self))
         try:
             return self.process_request(request)
@@ -45,8 +43,7 @@ class BaseProxyMiddleware(object):
             self.logger.exception("%s: process_request failed: %s", self, e)
             raise
 
-    def _process_response(self, response):
-        # type: (Response) -> Optional[Response]
+    def _process_response(self, response: Response) -> Response:
         self.logger.debug("%s.process_response", repr(self))
         try:
             return self.process_response(response)
@@ -54,8 +51,7 @@ class BaseProxyMiddleware(object):
             self.logger.exception("%s: process_response failed: %s", self, e)
             raise
 
-    def _process_exception(self, exception):
-        # type: (Exception) -> Optional[Response]
+    def _process_exception(self, exception: Exception) -> Optional[Response]:
         self.logger.debug("%s.process_exception", repr(self))
         try:
             return self.process_exception(exception)
@@ -64,8 +60,7 @@ class BaseProxyMiddleware(object):
                 self.logger.exception("%s: process_exception failed: %s", self, e)
             raise
 
-    def _process_finally(self):
-        # type: () -> None
+    def _process_finally(self) -> None:
         self.logger.debug("%s.process_finally", repr(self))
         try:
             return self.process_finally()
@@ -74,21 +69,18 @@ class BaseProxyMiddleware(object):
             raise
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_request(self, request):
-        # type: (Request) -> Request
+    def process_request(self, request: Request) -> Request:
         return request
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_response(self, response):
-        # type: (Response) -> Response
+    def process_response(self, response: Response) -> Response:
         return response
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_exception(self, exception):
-        # type: (Exception) -> Response
+    def process_exception(self, exception: Exception) -> Response:
         raise exception
 
-    def process_finally(self):
+    def process_finally(self) -> None:
         pass
 
     def __str__(self):
@@ -98,8 +90,7 @@ class BaseProxyMiddleware(object):
         return "{}()".format(self.__class__.__name__)
 
 
-def apply_middlewares(method, *middlewares):
-    # type: (callable, Tuple[BaseProxyMiddleware]) -> callable
-    for middleware in reversed(middlewares):
+def apply_middlewares(method: callable, *middlewares: Tuple[BaseProxyMiddleware]) -> callable:
+    for middleware in reversed(middlewares):  # type: BaseProxyMiddleware
         method = middleware.apply(method)
     return method
