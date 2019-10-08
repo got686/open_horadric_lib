@@ -11,7 +11,7 @@ from werkzeug.http import parse_accept_header
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.json_format import ParseDict
 from google.protobuf.message import Message
-from open_horadric_lib.context.proxy import ProxyContext
+from open_horadric_lib.base.context import Context
 from open_horadric_lib.proxy.middleware.base import BaseProxyMiddleware
 
 
@@ -35,25 +35,25 @@ JSON_ACCEPT_TYPES = {ContentTypeString.JSON, ContentTypeString.DEFAULT, ContentT
 
 
 class ProtocolConverterMiddleware(BaseProxyMiddleware):
-    def process_request(self, request):
+    def process_request(self, request, context: Context):
         if not flask_request.data:
-            return ProxyContext().request_message_type()
+            return context.request_message_type()
 
         protocol = self.get_input_protocol_type()
         if protocol == ProtocolType.MSGPACK:
             content = msgpack.loads(flask_request.data or b"\x80", raw=False)
-            message = ParseDict(content, ProxyContext().request_message_type())
+            message = ParseDict(content, context.request_message_type())
         elif protocol == ProtocolType.JSON:
             content = json.loads(flask_request.data or "{}")
-            message = ParseDict(content, ProxyContext().request_message_type())
+            message = ParseDict(content, context.request_message_type())
         elif protocol == ProtocolType.PROTOBUF:
-            message = ProxyContext().request_message_type.FromString(flask_request.data)
+            message = context.request_message_type.FromString(flask_request.data)
         else:
             raise ValueError("Unexpected protocol type {}".format(protocol))
 
         return message
 
-    def process_response(self, response: Message):
+    def process_response(self, response: Message, context: Context):
         protocol = self.get_output_protocol_type()
         if protocol == ProtocolType.MSGPACK:
             content_type = "application/x-msgpack"

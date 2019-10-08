@@ -11,76 +11,79 @@ from flask.wrappers import Request as FlaskRequest
 from flask.wrappers import Response
 
 from google.protobuf.message import Message
+from open_horadric_lib.base.context import Context
 
 Request = TypeVar("Request", FlaskRequest, Message)
 
 
-class BaseProxyMiddleware(object):
+class BaseProxyMiddleware:
     logger = logging.getLogger("proxy.middleware")
 
     def apply(self, method):
         @wraps(method)
-        def _wrapped(request: Request, *args, **kwargs) -> Callable[[Request, tuple, dict], Response]:
+        def _wrapped(
+            request: Request, context: Context, *args, **kwargs
+        ) -> Callable[[Request, Context, tuple, dict], Response]:
             try:
-                request = self._process_request(request)
-                response = method(request=request, *args, **kwargs)
+                request = self._process_request(request, context=context)
+                response = method(request=request, context=context, *args, **kwargs)
 
-                return self._process_response(response)
+                return self._process_response(response, context=context)
 
             except Exception as exception:
-                return self._process_exception(exception)
+                return self._process_exception(exception, context=context)
 
             finally:
-                self._process_finally()
+                self._process_finally(context=context)
 
         return _wrapped
 
-    def _process_request(self, request: Request) -> Request:
+    def _process_request(self, request: Request, context: Context) -> Request:
         self.logger.debug("%s.process_request", repr(self))
         try:
-            return self.process_request(request)
+            return self.process_request(request, context=context)
         except Exception as e:
             self.logger.exception("%s: process_request failed: %s", self, e)
             raise
 
-    def _process_response(self, response: Response) -> Response:
+    def _process_response(self, response: Response, context: Context) -> Response:
         self.logger.debug("%s.process_response", repr(self))
         try:
-            return self.process_response(response)
+            return self.process_response(response, context=context)
         except Exception as e:
             self.logger.exception("%s: process_response failed: %s", self, e)
             raise
 
-    def _process_exception(self, exception: Exception) -> Optional[Response]:
+    def _process_exception(self, exception: Exception, context: Context) -> Optional[Response]:
         self.logger.debug("%s.process_exception", repr(self))
         try:
-            return self.process_exception(exception)
+            return self.process_exception(exception, context=context)
         except Exception as e:
             if e is not exception:
                 self.logger.exception("%s: process_exception failed: %s", self, e)
             raise
 
-    def _process_finally(self) -> None:
+    def _process_finally(self, context: Context) -> None:
         self.logger.debug("%s.process_finally", repr(self))
         try:
-            return self.process_finally()
+            return self.process_finally(context=context)
         except Exception as e:
             self.logger.exception("%s: process_finally failed: %s", self, e)
             raise
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_request(self, request: Request) -> Request:
+    def process_request(self, request: Request, context: Context) -> Request:
         return request
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_response(self, response: Response) -> Response:
+    def process_response(self, response: Response, context: Context) -> Response:
         return response
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_exception(self, exception: Exception) -> Response:
+    def process_exception(self, exception: Exception, context: Context) -> Response:
         raise exception
 
-    def process_finally(self) -> None:
+    def process_finally(self, context: Context) -> None:
         pass
 
     def __str__(self):

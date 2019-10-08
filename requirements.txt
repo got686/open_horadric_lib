@@ -1,6 +1,6 @@
-flask==1.1.1
-werkzeug==0.16.0
-msgpack==0.6.2
-protobuf==3.9.2
-grpcio==1.23.0
-flask-cors==3.0.8
+flask>=1.1.1
+werkzeug>=0.16.0
+msgpack>=0.6.2
+protobuf>=3.10.0
+grpcio>=1.24.1
+flask-cors>=3.0.8
