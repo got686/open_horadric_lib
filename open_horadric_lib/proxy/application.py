@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from flask import Flask
+from flask import request as flask_request
 from flask.globals import _request_ctx_stack
 
 from open_horadric_lib.base.context import Context
@@ -25,4 +26,4 @@ class ProxyApplication(Flask):
         if getattr(rule, "provide_automatic_options", False) and req.method == "OPTIONS":
             return self.make_default_options_response()
         # otherwise dispatch to the handler for that endpoint
-        return self.view_functions[rule.endpoint](context=Context(), **req.view_args)
+        return self.view_functions[rule.endpoint](request=flask_request, context=Context(), **req.view_args)

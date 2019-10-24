@@ -7,7 +7,6 @@ import flask
 
 from open_horadric_lib.client.client import BaseClient
 from open_horadric_lib.proxy.middleware.base import BaseProxyMiddleware
-from open_horadric_lib.proxy.middleware.protocol_converter import ProtocolConverterMiddleware
 from open_horadric_lib.proxy.middleware.request_id import RequestIdProxyMiddleware
 
 
@@ -16,7 +15,7 @@ class BaseProxy:
 
     def __init__(self, client: BaseClient, middlewares: List[BaseProxyMiddleware] = None):
         if middlewares is None:
-            middlewares = [RequestIdProxyMiddleware(), ProtocolConverterMiddleware()]
+            middlewares = [RequestIdProxyMiddleware()]
 
         self.client = client
         self.middlewares = middlewares

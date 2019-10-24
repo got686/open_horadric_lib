@@ -5,15 +5,11 @@ from functools import wraps
 from typing import Callable
 from typing import Optional
 from typing import Tuple
-from typing import TypeVar
 
-from flask.wrappers import Request as FlaskRequest
+from flask.wrappers import Request
 from flask.wrappers import Response
 
-from google.protobuf.message import Message
 from open_horadric_lib.base.context import Context
-
-Request = TypeVar("Request", FlaskRequest, Message)
 
 
 class BaseProxyMiddleware:
@@ -21,12 +17,10 @@ class BaseProxyMiddleware:
 
     def apply(self, method):
         @wraps(method)
-        def _wrapped(
-            request: Request, context: Context, *args, **kwargs
-        ) -> Callable[[Request, Context, tuple, dict], Response]:
+        def _wrapped(request: Request, context: Context) -> Callable[[Request, Context], Response]:
             try:
                 request = self._process_request(request, context=context)
-                response = method(request=request, context=context, *args, **kwargs)
+                response = method(request=request, context=context)
 
                 return self._process_response(response, context=context)
 
