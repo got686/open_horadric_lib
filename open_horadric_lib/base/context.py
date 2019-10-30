@@ -9,13 +9,20 @@ from google.protobuf.message import Message
 from open_horadric_lib.base.singleton import ThreadLocalSingletonMeta
 
 
-@dataclasses.dataclass(init=False)
+@dataclasses.dataclass()
 class Context(metaclass=ThreadLocalSingletonMeta):
-    request_message_type: Type[Message]
-    response_message_type: Type[Message]
-    request_id: str
-    rpc_context: ServicerContext
-    metadata: dict = dataclasses.field(default_factory=dict)
+    request_message_type: Type[Message] = None
+    response_message_type: Type[Message] = None
+    request_id: str = ""
+    rpc_context: ServicerContext = None
+    _metadata: dict = None
+
+    @property
+    def metadata(self) -> dict:
+        if self._metadata is None and self.rpc_context is not None:
+            self._metadata = dict(self.rpc_context.invocation_metadata())
+
+        return self._metadata
 
     def reset(self):
         for field in dataclasses.fields(self.__class__):  # type: dataclasses.Field
