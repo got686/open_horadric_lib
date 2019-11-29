@@ -16,6 +16,8 @@ class Context(metaclass=ThreadLocalSingletonMeta):
     request_id: str = ""
     rpc_context: ServicerContext = None
     _metadata: dict = None
+    service_name: str = ""
+    method_name: str = ""
 
     @property
     def metadata(self) -> dict:
