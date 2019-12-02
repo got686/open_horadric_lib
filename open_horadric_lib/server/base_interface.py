@@ -11,7 +11,6 @@ from grpc import ServicerContext
 from google.protobuf.message import Message
 from open_horadric_lib.base.context import Context
 from open_horadric_lib.server.middleware.base import BaseServerMiddleware
-from open_horadric_lib.server.middleware.base import apply_middlewares
 from open_horadric_lib.server.middleware.logging import LoggingServerMiddleware
 from open_horadric_lib.server.middleware.request_id import RequestIdServerMiddleware
 
@@ -27,8 +26,6 @@ class BaseServerInterface:
         self.middlewares = middlewares
 
     def _wrap_method(self, method):
-        method = apply_middlewares(method, *self.middlewares)
-
         @wraps(method)
         def wrapper(request: Message, context: ServicerContext):
             request_context = self.context_class()
