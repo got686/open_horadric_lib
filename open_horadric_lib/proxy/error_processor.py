@@ -32,8 +32,7 @@ ErrorResponseData = Dict[Literal["error", "message", "traceback"], str]
 class ErrorProcessor:
     logger = logging.getLogger("open_horadric_lib.error")
 
-    @classmethod
-    def get_response_data(cls, exception: Exception) -> ErrorResponseData:
+    def get_response_data(self, exception: Exception) -> ErrorResponseData:
         if isinstance(exception, BaseHoradricError):
             return {"error": exception.text_code, "message": str(exception)}
         elif isinstance(exception, HTTPException):
@@ -42,12 +41,11 @@ class ErrorProcessor:
                 "message": "{}: {}".format(exception.name, exception.description),
             }
         else:
-            cls.logger.exception("Unexpected error")
+            self.logger.exception("Unexpected error")
             # TODO: add debug processing
             return {"error": "unexpected_error", "message": "Unexpected error"}
 
-    @classmethod
-    def create_response(cls, response_data: ErrorResponseData, protocol: ProtocolType, context: Context):
+    def create_response(self, response_data: ErrorResponseData, protocol: ProtocolType, context: Context):
         headers = {"x-request-id": context.request_id}
         if protocol == ProtocolType.MSGPACK:
             content_type = "application/x-msgpack"
@@ -66,8 +64,7 @@ class ErrorProcessor:
 
         return Response(content, content_type=content_type, headers=headers)
 
-    @classmethod
-    def get_error_code(cls, exception: Exception):
+    def get_error_code(self, exception: Exception):
         if isinstance(exception, BaseLogicError):
             return HttpCodes.INTERNAL_ERROR
         elif isinstance(exception, BaseHttpError):
@@ -77,17 +74,16 @@ class ErrorProcessor:
         else:
             return HttpCodes.INTERNAL_ERROR
 
-    @classmethod
-    def process_error(cls, exception: Exception, context: Context):
-        response_data = cls.get_response_data(exception=exception)
+    def process_error(self, exception: Exception, context: Context):
+        response_data = self.get_response_data(exception=exception)
 
         try:
             protocol = ProtocolParser.get_output_protocol_type()
         except BadResponseFormat:
             protocol = ProtocolType.JSON
 
-        response = cls.create_response(response_data=response_data, protocol=protocol, context=context)
+        response = self.create_response(response_data=response_data, protocol=protocol, context=context)
 
-        response.status_code = cls.get_error_code(exception=exception)
+        response.status_code = self.get_error_code(exception=exception)
 
         return response

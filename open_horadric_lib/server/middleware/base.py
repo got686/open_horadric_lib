@@ -5,8 +5,6 @@ from functools import wraps
 from typing import Callable
 from typing import Tuple
 
-from grpc import ServicerContext
-
 from google.protobuf.message import Message
 from open_horadric_lib.base.context import Context
 
@@ -14,9 +12,7 @@ from open_horadric_lib.base.context import Context
 class BaseServerMiddleware:
     logger = logging.getLogger("server.middleware")
 
-    def apply(
-        self, method: Callable[[Message, Context, ServicerContext], Message]
-    ) -> Callable[[Message, Context, ServicerContext], Message]:
+    def apply(self, method: Callable[[Message, Context], Message]) -> Callable[[Message, Context], Message]:
         @wraps(method)
         def _wrapped(request: Message, context: Context) -> Message:
             try:
@@ -75,7 +71,7 @@ class BaseServerMiddleware:
         return response
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_exception(self, exception: Exception, context: Context) -> Message:
+    def process_exception(self, exception: Exception, context: Context) -> None:
         raise exception
 
     def process_finally(self, request: Message, context: Context) -> None:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from google.protobuf.message import Message
 from open_horadric_lib.base.context import Context
 from open_horadric_lib.server.middleware.base import BaseServerMiddleware
@@ -12,6 +14,6 @@ class LoggingServerMiddleware(BaseServerMiddleware):
         self.logger.info("Server response: \n%s", response)
         return response
 
-    def process_exception(self, exception: Exception, context: Context) -> Message:
+    def process_exception(self, exception: Exception, context: Context) -> None:
         self.logger.exception("Unknown error occurres")
         raise exception
