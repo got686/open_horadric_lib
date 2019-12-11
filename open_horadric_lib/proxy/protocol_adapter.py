@@ -18,12 +18,17 @@ MessageType = TypeVar("MessageType", bound=Message)
 
 
 class ProtocolAdapter:
-    @staticmethod
-    def get_request(request: FlaskRequest, context: Context) -> MessageType:
+    def __init__(self, protocol_parser: ProtocolParser = None):
+        if protocol_parser is None:
+            protocol_parser = ProtocolParser()
+
+        self.protocol_parser = protocol_parser
+
+    def get_request(self, request: FlaskRequest, context: Context) -> MessageType:
         if not request.data:
             return context.request_message_type()
 
-        protocol = ProtocolParser.get_input_protocol_type()
+        protocol = self.protocol_parser.get_input_protocol_type()
         if protocol == ProtocolType.MSGPACK:
             content = msgpack.loads(request.data or b"\x80", raw=False)
             message = ParseDict(content, context.request_message_type())
@@ -37,9 +42,8 @@ class ProtocolAdapter:
 
         return message
 
-    @staticmethod
-    def make_response(response: MessageType, context: Context):
-        protocol = ProtocolParser.get_output_protocol_type()
+    def make_response(self, response: MessageType, context: Context):
+        protocol = self.protocol_parser.get_output_protocol_type()
         if protocol == ProtocolType.MSGPACK:
             content_type = "application/x-msgpack"
             content = msgpack.dumps(MessageToDict(response))
