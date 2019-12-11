@@ -29,8 +29,7 @@ JSON_ACCEPT_TYPES = {ContentTypeString.JSON, ContentTypeString.DEFAULT, ContentT
 
 
 class ProtocolParser:
-    @classmethod
-    def get_output_protocol_type(cls) -> ProtocolType:
+    def get_output_protocol_type(self) -> ProtocolType:
         accept_header = flask_request.headers.get("accept", ContentTypeString.DEFAULT)
         accept_formats = parse_accept_header(accept_header)
         accept_formats = sorted(accept_formats, key=lambda x: x[1], reverse=True)
@@ -45,8 +44,7 @@ class ProtocolParser:
 
         raise BadResponseFormat(f"Bad `accept` header {accept_header}")
 
-    @classmethod
-    def get_input_protocol_type(cls) -> ProtocolType:
+    def get_input_protocol_type(self) -> ProtocolType:
         mime_type = flask_request.mimetype
 
         if mime_type == ContentTypeString.MSGPACK:
