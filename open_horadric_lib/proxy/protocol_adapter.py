@@ -7,6 +7,7 @@ import msgpack
 from flask.wrappers import Request as FlaskRequest
 from flask.wrappers import Response
 
+import yaml
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.json_format import ParseDict
 from google.protobuf.message import Message
@@ -35,6 +36,9 @@ class ProtocolAdapter:
         elif protocol == ProtocolType.JSON:
             content = json.loads(request.data or "{}")
             message = ParseDict(content, context.request_message_type())
+        elif protocol == ProtocolType.YAML:
+            content = yaml.safe_load(request.data or "{}")
+            message = ParseDict(content, context.request_message_type())
         elif protocol == ProtocolType.PROTOBUF:
             message = context.request_message_type.FromString(request.data)
         else:
@@ -50,8 +54,11 @@ class ProtocolAdapter:
         elif protocol == ProtocolType.JSON:
             content_type = "application/json"
             content = json.dumps(MessageToDict(response))
+        elif protocol == ProtocolType.YAML:
+            content_type = "application/x-yaml"
+            content = yaml.dump(MessageToDict(response))
         elif protocol == ProtocolType.PROTOBUF:
-            content_type = "application/protobuf"
+            content_type = "application/x-protobuf"
             content = response.SerializeToString()
         else:
             raise ValueError("Unexpected protocol type {}".format(protocol))

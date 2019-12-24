@@ -12,6 +12,7 @@ from open_horadric_lib.base.exception import BadResponseFormat
 class ContentTypeString:
     JSON = "application/json"
     MSGPACK = "application/x-msgpack"
+    YAML = "application/x-yaml"
     PROTOBUF = "application/x-protobuf"
     WWW_FORM = "application/x-www-form-urlencoded"
     DEFAULT = "*/*"
@@ -22,7 +23,8 @@ class ContentTypeString:
 class ProtocolType(IntEnum):
     JSON = 0
     MSGPACK = 1
-    PROTOBUF = 2
+    YAML = 2
+    PROTOBUF = 3
 
 
 JSON_ACCEPT_TYPES = {ContentTypeString.JSON, ContentTypeString.DEFAULT, ContentTypeString.DEFAULT_APPLICATION}
@@ -39,6 +41,8 @@ class ProtocolParser:
                 return ProtocolType.MSGPACK
             elif accept_string == ContentTypeString.PROTOBUF:
                 return ProtocolType.PROTOBUF
+            elif accept_string == ContentTypeString.YAML:
+                return ProtocolType.YAML
             elif accept_string in JSON_ACCEPT_TYPES:
                 return ProtocolType.JSON
 
@@ -53,5 +57,7 @@ class ProtocolParser:
             return ProtocolType.PROTOBUF
         elif mime_type in {ContentTypeString.JSON, ContentTypeString.EMPTY}:
             return ProtocolType.JSON
+        elif mime_type == ContentTypeString.YAML:
+            return ProtocolType.YAML
         else:
             raise BadRequestFormat(format_=mime_type)

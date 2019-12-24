@@ -4,3 +4,4 @@ msgpack>=0.6.2
 protobuf>=3.10.0
 grpcio>=1.24.1
 flask-cors>=3.0.8
+pyyaml>=5.2
