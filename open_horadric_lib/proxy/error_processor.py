@@ -78,7 +78,7 @@ class ErrorProcessor:
         response_data = self.get_response_data(exception=exception)
 
         try:
-            protocol = ProtocolParser.get_output_protocol_type()
+            protocol = ProtocolParser.get_output_protocol_type(self)
         except BadResponseFormat:
             protocol = ProtocolType.JSON
 
