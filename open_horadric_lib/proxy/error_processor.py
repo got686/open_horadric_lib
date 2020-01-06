@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import grpc
 import json
 import logging
+
 from enum import IntEnum
 from typing import Dict
 from typing import Literal
@@ -40,6 +42,8 @@ class ErrorProcessor:
                 "error": exception.name.lower().replace(" ", "_"),
                 "message": "{}: {}".format(exception.name, exception.description),
             }
+        elif isinstance(exception, grpc.RpcError):
+            return json.loads(exception.details())
         else:
             self.logger.exception("Unexpected error")
             # TODO: add debug processing
@@ -71,6 +75,11 @@ class ErrorProcessor:
             return exception.code
         elif isinstance(exception, HTTPException):
             return exception.code
+        elif isinstance(exception, grpc.RpcError):
+          code = json.loads(exception.details())["code"]
+          if isinstance(code, str):
+            return HttpCodes.INTERNAL_ERROR
+          return code
         else:
             return HttpCodes.INTERNAL_ERROR
 
