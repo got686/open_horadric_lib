@@ -32,6 +32,7 @@ class BaseServerInterface:
             request_context.reset()
             request_context.rpc_context = context
             response = method(request=request, context=request_context)
+            request_context.reset()
             return response
 
         return wrapper
