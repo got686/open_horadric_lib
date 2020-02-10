@@ -3,81 +3,78 @@ from __future__ import annotations
 import logging
 from functools import wraps
 from typing import Callable
-from typing import Optional
 from typing import Tuple
 
-from flask.wrappers import Request
-from flask.wrappers import Response
-
+from google.protobuf.message import Message
 from open_horadric_lib.base.context import Context
 
 
-class BaseProxyMiddleware:
-    logger = logging.getLogger("proxy.middleware")
+class BaseServerMiddleware:
+    logger = logging.getLogger("server.middleware")
 
-    def apply(self, method):
+    def apply(self, method: Callable[[Message, Context], Message]) -> Callable[[Message, Context], Message]:
         @wraps(method)
-        def _wrapped(request: Request, context: Context) -> Callable[[Request, Context], Response]:
+        def _wrapped(request: Message, context: Context) -> Message:
             try:
-                request = self._process_request(request, context=context)
+                request = self._process_request(request=request, context=context)
                 response = method(request=request, context=context)
 
-                return self._process_response(response, context=context)
+                return self._process_response(response=response, request=request, context=context)
 
             except Exception as exception:
                 return self._process_exception(exception, context=context)
 
             finally:
-                self._process_finally(context=context)
+                self._process_finally(request=request, context=context)
 
         return _wrapped
 
-    def _process_request(self, request: Request, context: Context) -> Request:
+    def _process_request(self, request: Message, context: Context) -> Message:
         self.logger.debug("%s.process_request", repr(self))
         try:
-            return self.process_request(request, context=context)
+            return self.process_request(request=request, context=context)
         except Exception as e:
             self.logger.exception("%s: process_request failed: %s", self, e)
             raise
 
-    def _process_response(self, response: Response, context: Context) -> Response:
+    def _process_response(self, response: Message, request: Message, context: Context) -> Message:
         self.logger.debug("%s.process_response", repr(self))
         try:
-            return self.process_response(response, context=context)
+            return self.process_response(response=response, request=request, context=context)
         except Exception as e:
             self.logger.exception("%s: process_response failed: %s", self, e)
             raise
 
-    def _process_exception(self, exception: Exception, context: Context) -> Optional[Response]:
+    def _process_exception(self, exception: Exception, context: Context) -> Message:
         self.logger.debug("%s.process_exception", repr(self))
         try:
-            return self.process_exception(exception, context=context)
+            return self.process_exception(exception=exception, context=context)
         except Exception as e:
             if e is not exception:
                 self.logger.exception("%s: process_exception failed: %s", self, e)
             raise
 
-    def _process_finally(self, context: Context) -> None:
+    def _process_finally(self, request: Message, context: Context) -> None:
         self.logger.debug("%s.process_finally", repr(self))
         try:
-            return self.process_finally(context=context)
+            return self.process_finally(request=request, context=context)
         except Exception as e:
             self.logger.exception("%s: process_finally failed: %s", self, e)
             raise
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_request(self, request: Request, context: Context) -> Request:
+    def process_request(self, request: Message, context: Context) -> Message:
         return request
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_response(self, response: Response, context: Context) -> Response:
+    def process_response(self, response: Message, context: Context, request: Message) -> Message:
         return response
 
     # noinspection PyUnusedLocal,PyMethodMayBeStatic
-    def process_exception(self, exception: Exception, context: Context) -> Response:
+    def process_exception(self, exception: Exception, context: Context) -> None:
         raise exception
 
-    def process_finally(self, context: Context) -> None:
+    def process_finally(self, request: Message, context: Context) -> None:
         pass
 
     def __str__(self):
@@ -87,7 +84,7 @@ class BaseProxyMiddleware:
         return "{}()".format(self.__class__.__name__)
 
 
-def apply_middlewares(method: callable, *middlewares: Tuple[BaseProxyMiddleware]) -> callable:
-    for middleware in reversed(middlewares):  # type: BaseProxyMiddleware
+def apply_middlewares(method: callable, *middlewares: Tuple[BaseServerMiddleware]) -> callable:
+    for middleware in reversed(middlewares):  # type: BaseServerMiddleware
         method = middleware.apply(method)
     return method
