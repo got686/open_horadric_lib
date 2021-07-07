@@ -29,6 +29,7 @@ class BaseServerInterface:
         @wraps(method)
         def wrapper(request: Message, context: ServicerContext):
             request_context = self.context_class()
+            request_context.reset()
             request_context.rpc_context = context
             response = method(request=request, context=request_context)
             request_context.reset()
